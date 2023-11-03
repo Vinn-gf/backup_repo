@@ -12,7 +12,7 @@ import {
   setToken,
   setUser,
 } from "../redux/reducers/auth/authLogin";
-import { setTokenMe } from "../redux/reducers/meUser/authMe";
+// import { setTokenMe } from "../redux/reducers/meUser/authMe";
 
 const ReduxAllMovies = () => {
   const [Popular, setPopular] = useState([]);
@@ -94,7 +94,7 @@ const ReduxAllMovies = () => {
                     dispatch(setToken(undefined));
                     dispatch(setLoggedIn(false));
                     dispatch(setUser(""));
-                    dispatch(setTokenMe(""));
+                    // dispatch(setTokenMe(""));
                     navigate("/");
                   }}
                   className="bg-red-600 text-white py-0.5 px-1 font-normal text-[1rem] border-2 border-red-600 outline-red-600 rounded-full w-[6rem] h-[2.5rem]"

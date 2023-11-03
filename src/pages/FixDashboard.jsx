@@ -14,19 +14,31 @@ import {
   setUser,
 } from "../redux/reducers/auth/authLogin";
 import PopularMovies from "../assets/components/PopularComponents/PopularMovies";
-// import { GetUserMe } from "../redux/actions/getMe";
-import { setTokenMe } from "../redux/reducers/meUser/authMe";
+import { GetUserMe } from "../redux/actions/getMe";
 
 const FixDashboard = () => {
   const [Popular, setPopular] = useState([]);
   const [Search, setSearch] = useState("");
   const [Loading, setLoading] = useState(false);
+  const [UserName, setUserName] = useState("");
+  const [UserEmail, setUserEmail] = useState("");
+  const [isModalOpen, setModalOpen] = useState(false);
   const dispatch = useDispatch();
   const movieData = useSelector((state) => state.movieBox.movies);
+  const usernameData = useSelector((state) => state.authMeUser.isUsername);
+  const emailData = useSelector((state) => state.authMeUser.isEmail);
   const navigate = useNavigate();
 
   useEffect(() => {
     setLoading(true);
+    dispatch(GetUserMe())
+      .then((result) => {
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err, "err dashboard");
+        setLoading(false);
+      });
 
     dispatch(GetMovieList(1))
       .then((result) => {
@@ -40,9 +52,19 @@ const FixDashboard = () => {
 
   useEffect(() => {
     if (!Loading) {
+      setUserName(usernameData);
+      setUserEmail(emailData);
       setPopular(movieData);
     }
-  }, [movieData, Loading]);
+  }, [movieData, Loading, dispatch, usernameData, emailData]);
+
+  const openModal = () => {
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+  };
 
   const renderPopularMovieList = () => {
     return Popular.slice(0, 5).map((movie, i) => {
@@ -70,7 +92,6 @@ const FixDashboard = () => {
                   value={Search}
                   onChange={(e) => {
                     setSearch(e.target.value);
-                    // showSearchMovies()
                   }}
                   className="border-2 w-full bg-transparent font-bold font-montserrat text-white border-red-600 rounded-full px-4 py-2 outline-red-600 focus:border-red-600 focus:outline-none"
                   placeholder="what do you want to watch?"
@@ -82,19 +103,24 @@ const FixDashboard = () => {
                 </div>
               </div>
             </div>
-            <div className="head-btn flex gap-4 justify-center items-center mr-2">              
+            <div className="head-btn flex gap-4 justify-center items-center mr-2">
               <button
                 onClick={() => {
                   CookieStorage.remove(CookieKeys.AuthToken);
                   dispatch(setToken(undefined));
                   dispatch(setLoggedIn(false));
                   dispatch(setUser(""));
-                  dispatch(setTokenMe(""));
                   navigate("/");
                 }}
                 className="bg-red-600 text-white py-0.5 px-1 font-normal text-[1rem] border-2 border-red-600 outline-red-600 rounded-full w-[6rem] h-[2.5rem]"
               >
                 LogOut
+              </button>
+              <button
+                onClick={openModal}
+                className="bg-blue-600 text-white py-0.5 px-1 font-normal text-[1rem] border-2 border-blue-600 outline-blue-600 rounded-full w-[6rem] h-[2.5rem]"
+              >
+                User Info
               </button>
             </div>
           </div>
@@ -163,6 +189,19 @@ const FixDashboard = () => {
               {renderPopularMovieList()}
             </div>
           </div>
+          {isModalOpen && (
+            <div className="modal-overlay font-montserrat flex justify-center items-center fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm w-full h-screen z-50">
+              <div className="modal-content bg-blue-600 flex flex-col gap-[1rem] rounded-md px-4 py-2 text-white">
+                <h2>User Information</h2>
+                <p>Name   : {UserName}</p>
+                <p>Email   : {UserEmail}</p>
+                <button className="modal-close font-black text-black bg-red-600 rounded-md px-2 py-1 hover:bg-red-800 hover:text-white"
+                onClick={closeModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
