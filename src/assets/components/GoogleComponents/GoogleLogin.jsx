@@ -1,20 +1,23 @@
-import React, { useState } from "react";
+import React from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { CookieKeys, CookieStorage } from "../../../utils/cookies";
-import GoogleLogo from "../../img/google-logo.png";
+import { CookieKeys, CookieStorage } from "../../../utils/Cookies";
+import { useDispatch } from "react-redux";
+import { setToken } from "../../../redux/reducers/auth/authlogin";
+import { Navigate, useNavigate } from "react-router-dom";
 
-function GoogleLogin({ buttonText }) {
-  const [LoggedIn, setLoggedIn] = useState(false);
+function GoogleLogin() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const registerLoginWithGoogleAction = async (accessToken) => {
     try {
-      const data = JSON.stringify({
+      let data = JSON.stringify({
         access_token: accessToken,
       });
 
-      const config = {
+      let config = {
         method: "post",
         maxBodyLength: Infinity,
         url: `${process.env.REACT_APP_SERVER}/api/v1/auth/google`,
@@ -28,46 +31,29 @@ function GoogleLogin({ buttonText }) {
       const { token } = response.data.data;
 
       CookieStorage.set(CookieKeys.AuthToken, token);
-      setLoggedIn(true);
-      toast.success("Login Success!! Click to go to HomePage", {
-        position: "top-center",
-        autoClose: 2000,
-      });
+      dispatch(setToken(token));
+      toast.success("Login Berhasil!");
+      setTimeout(() => {
+        navigate("/home");
+      }, 2000);
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        toast.error(error.response.data.message, {
-          position: "top-center",
-        });
-      } else {
-        toast.error(error.message);
+        toast.error(error.response.data.message);
+        return;
       }
+      toast.error(error.message);
     }
-  }
+  };
 
   const loginWithGoogle = useGoogleLogin({
-    onSuccess: (responseGoogle) =>
-      registerLoginWithGoogleAction(responseGoogle.access_token),
+    onSuccess: (responseGoogle) => registerLoginWithGoogleAction(responseGoogle.access_token),
   });
 
   return (
     <div>
-      {LoggedIn ? (
-        <p>You are logged in. Click to go to the HomePage.</p>
-      ) : (
-        <div className="flex flex-row">
-          <button
-            onClick={() => loginWithGoogle()}
-            className="bg-white hover:bg-rose-400 rounded-md w-[13rem] h-[2.5rem] font-bold font-poppins tracking-wider focus:outline-none flex justify-center items-center"
-          >
-            {buttonText}{" "}
-            <img
-              src={GoogleLogo}
-              alt="Google Logo"
-              style={{ width: "24px", height: "24px", marginLeft: "10px" }}
-            />
-          </button>
-        </div>
-      )}
+      <button className=" text-black font-bold py-2 px-4" onClick={() => loginWithGoogle()}>
+        <button className="bg-red-500 gap-4 px-2 py-2 text-white flex items-center rounded-md">Continue with Google</button>
+      </button>
     </div>
   );
 }

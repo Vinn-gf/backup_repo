@@ -70,7 +70,7 @@ const LoginPage = () => {
           >
             Login
           </button>
-          <GoogleLogin buttonText="Login with Google" />
+          <GoogleLogin />
         </div>
       </div>
     </div>
