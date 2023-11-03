@@ -1,5 +1,5 @@
-import React from "react";
-import { useState } from "react";
+import { GoogleLogin } from "@react-oauth/google";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { PostLoginUser } from "../../redux/actions/postLogin";
@@ -9,7 +9,7 @@ const LoginPage = () => {
   const [Email, setEmail] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
+
   const handleInput = (e) => {
     if (e) {
       if (e.target.id === "email") {
@@ -61,7 +61,6 @@ const LoginPage = () => {
             />
           </div>
         </div>
-
         <div className="btn-section w-[60%]">
           <button
             onClick={() => {
@@ -71,6 +70,7 @@ const LoginPage = () => {
           >
             Login
           </button>
+          <GoogleLogin buttonText="Login with Google" />
         </div>
       </div>
     </div>
